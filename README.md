@@ -412,3 +412,7 @@ Por eso es importante verificar que seleccionaste la microSD o SSD correcta ante
 12. Insertar la microSD o SSD en la Raspberry Pi 5 e iniciar el sistema.
 13. Conectarse por escritorio remoto con la guía Guides/conexionEscritorioRemoto.md.
 ```
+
+---
+
+<sub>**Contacto (solo estudiantes de la Universidad Nacional de Colombia):** si tienen dudas, pueden escribirme buscando mi nombre completo, *Johan Alejandro López Arias*, en el Gmail de la UNAL, o desde [johanalejandrolopezarias.com](https://johanalejandrolopezarias.com).</sub>
