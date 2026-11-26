@@ -647,7 +647,7 @@ It takes about 50 seconds. When `done` appears, read the result with `cat ~/top-
 - **Who drives the fan:** the Linux `pwm-fan` driver, at four "cooling levels" tied to CPU temperature points.
 - **What Ubuntu's device tree sets:** the levels switch on at 50, 60, 67.5 and 75 °C, at speeds 75, 125, 175 and 250 out of 255.
 - **What this part changes:** four `config.txt` lines, the same ones as in the lab image, set **every level to 255** and **move the four switch-on points down to 10, 15, 20 and 25 °C**. A running Pi 5 is always warmer than that, so the fan runs at 255 from the moment Linux loads the fan driver, in the first seconds of boot.
-- **Checked on the image:** its Pi 5 device trees (`current/bcm2712-rpi-5-b.dtb` and `bcm2712d0-rpi-5-b.dtb`) define `fan_temp0…3` with `_hyst` and `_speed`, and a `cooling_fan` setting. In the base tree the fan device is marked `disabled`, and the lab image doesn't set `dtparam=cooling_fan=on`. So 4.1 and 4.3 check that the fan device really exists; if it doesn't, see Troubleshooting.
+- **Checked on the image:** its Pi 5 device trees (`current/bcm2712-rpi-5-b.dtb` and `bcm2712d0-rpi-5-b.dtb`) define `fan_temp0…3` with `_hyst` and `_speed`, and a `cooling_fan` setting. In the base tree the fan device is marked `disabled`, and the lab image doesn't set `dtparam=cooling_fan=on`. It's switched on at boot anyway: **checked on the lab Pi on 2026-11-26**, `pwm1` reads `255` with the lines of 4.2 and without `cooling_fan=on`. 4.1 and 4.3 still check that the fan device exists; if it doesn't on your board, see Troubleshooting.
 
 ### 4.1 Before (Pi, terminal inside the RDP window)
 
