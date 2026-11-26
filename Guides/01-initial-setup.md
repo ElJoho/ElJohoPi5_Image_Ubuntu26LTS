@@ -382,7 +382,6 @@ grdctl rdp set-tls-key ~/.local/share/gnome-remote-desktop/rdp-tls.key
 grdctl rdp set-tls-cert ~/.local/share/gnome-remote-desktop/rdp-tls.crt
 grdctl rdp set-credentials unpi unpi
 grdctl rdp disable-view-only
-grdctl rdp disable-port-negotiation
 grdctl rdp enable
 ```
 
@@ -393,7 +392,7 @@ No error means success. `rdp enable` also enables and starts your user service, 
 | `set-tls-key`, `set-tls-cert` | none | Without them the service doesn't accept connections. Its log says "RDP TLS certificate and key not yet configured properly". |
 | `set-credentials unpi unpi` | none | The **RDP login**. It's separate from the Linux account; the lab login is reused so there's one less password to remember. It's stored in your login keyring. |
 | `disable-view-only` | view-only **on** | Lets the client use the mouse and keyboard, not just watch |
-| `disable-port-negotiation` | **on** | With negotiation on, the service quietly moves to another port when 3389 is busy, and clients that only type the address can't find it. Off, it always uses 3389. |
+| Port negotiation (not changed) | **on** | If 3389 is already taken when the service starts, it quietly moves to another port, and clients that only type the address can't find it. Nothing else uses 3389 on this Pi as long as *Remote Login* stays off (see below), so it always gets 3389. The lab image keeps this default. |
 | Screen-share mode (not changed) | `mirror-primary` | The client sees the primary screen: once headless (3.6), that's HDMI1's 1328×748 virtual screen. The other mode, `extend`, adds a virtual monitor, which means more pixels to encode. |
 
 **3. Check:**
@@ -415,12 +414,12 @@ RDP:
 	Port: 3389
 	TLS fingerprint: …            ← write this down for 3.5
 	View-only: no
-	Negotiate port: no
+	Negotiate port: yes
 	Username: (hidden)
 	Password: (hidden)
 ```
 
-- **Settings shows the same configuration.** **Settings → System → Remote Desktop → Desktop Sharing** shows *Desktop Sharing* and *Remote Control* turned on. **Leave the *Remote Login* tab off**: it's the other mode, and it would compete for port 3389.
+- **Settings shows the same configuration.** **Settings → System → Remote Desktop → Desktop Sharing** shows *Desktop Sharing* and *Remote Control* turned on. **Leave the *Remote Login* tab off**: it's the other mode, and it would take port 3389, so Desktop Sharing would move to another port.
 - **Firewall:** `ufw` is installed but off (`sudo ufw status` → `inactive`). If you ever turn it on, allow RDP only on the cable: `sudo ufw allow in on eth0 to any port 3389 proto tcp`.
 
 ### 3.4 Automatic login, no lock, no blanking, no suspend, an open keyring (Pi, at the monitor)
@@ -448,7 +447,18 @@ Desktop Sharing shows the session running on the Pi's screen (the monitor now, H
    gsettings set org.gnome.desktop.session idle-delay 0
    gsettings set org.gnome.desktop.screensaver lock-enabled false
    gsettings set org.gnome.settings-daemon.plugins.power sleep-inactive-ac-type 'nothing'
+   gsettings set org.gnome.desktop.screensaver ubuntu-lock-on-suspend false
+   gsettings set org.gnome.desktop.lockdown disable-lock-screen true
+   gsettings set org.gnome.desktop.interface enable-animations false
    ```
+
+   The last three are the same as in the lab image and in annex A.3 of the [remote-desktop guide](conexionEscritorioRemoto.md#a3-que-funcione-siempre-también-después-de-reiniciar):
+
+   | Setting | Why |
+   |---|---|
+   | `ubuntu-lock-on-suspend false` | If the Pi is ever suspended, for example from the menu, it doesn't come back locked. Automatic suspend is already off; this is a second safety net. |
+   | `disable-lock-screen true` | Removes locking entirely: `Super+L` and the **Lock** menu item stop working, so nobody can lock the Pi by accident and cut off the remote desktop. |
+   | `enable-animations false` | No GNOME animations: fewer screen changes to compress, so less CPU. The load measured in 3.10 is with animations off. |
 
 3. Check:
 
@@ -457,6 +467,9 @@ Desktop Sharing shows the session running on the Pi's screen (the monitor now, H
    gsettings get org.gnome.desktop.session idle-delay                         # uint32 0
    gsettings get org.gnome.desktop.screensaver lock-enabled                   # false
    gsettings get org.gnome.settings-daemon.plugins.power sleep-inactive-ac-type   # 'nothing'
+   gsettings get org.gnome.desktop.screensaver ubuntu-lock-on-suspend         # false
+   gsettings get org.gnome.desktop.lockdown disable-lock-screen               # true
+   gsettings get org.gnome.desktop.interface enable-animations                # false
    ```
 
 4. **Give the login keyring an empty password.**
@@ -768,11 +781,11 @@ Expected:
 | `HDMI-A-2` lists `1024x768 848x480 …` instead of only `1328x748` | The kernel couldn't read the EDID file: it's missing, or the name in `cmdline.txt` has a typo | `ls -l /lib/firmware/edid/1328x748-15.bin` (128 bytes) and `sudo dmesg \| grep -i edid`. Redo 3.6 step 1, or fix the name in `current/cmdline.txt`, then reboot. |
 | The RDP client can't connect after a reboot ("connection refused", or it times out) | The login keyring is locked, so Desktop Sharing can't read its login; or the service didn't start | At a monitor on HDMI0 (3.8): `grdctl status`. `Failed to read credentials` means the keyring: see 3.4 step 4. Otherwise read the log: `journalctl --user -u gnome-remote-desktop -b --no-pager \| tail -n 30` |
 | The log says "RDP TLS certificate and key not yet configured properly" | Step 1 or the `set-tls-*` commands of 3.3 were skipped | Repeat 3.3 steps 1 and 2 |
-| The client connects, then disconnects at once | The screen locked (locking ends Desktop Sharing), or there's no active output | Check the `lock-enabled false` setting (3.4) and the 3.8 output |
+| The client connects, then disconnects at once | The screen locked (locking ends Desktop Sharing), or there's no active output | Check the lock settings (3.4 step 3) and the 3.8 output |
 | The client shows a black window | No active output to capture | Check 3.8. If it's fine and the window is still black, use a dummy HDMI plug on HDMI0 set to a small size (3.9). |
 | The login is rejected | The RDP login (`grdctl rdp set-credentials`) is separate from the Linux account; or Windows sent your Windows account instead | Run `grdctl rdp set-credentials unpi unpi` again. In Windows, choose **More choices → Use a different account** and type `unpi`. |
 | The client can watch but not click or type | View-only is still on, which is the default | `grdctl rdp disable-view-only` |
-| Nothing listens on port 3389, and the log mentions the address being in use | *Remote Login* (the system service) is also on and holds 3389 | Turn off **Settings → System → Remote Desktop → Remote Login**, then reboot |
+| The client shows a GNOME login screen instead of the Pi's desktop, or can't connect | *Remote Login* (the system service) is also on and holds 3389, so Desktop Sharing moved to another port (port negotiation is on, 3.3) | Turn off **Settings → System → Remote Desktop → Remote Login**, then reboot |
 | A monitor shows "no signal" or a bad picture after 3.6 | It's on **HDMI1**, which now only offers 1328×748 at 15 Hz | Move it to **HDMI0**, next to the USB-C power. To give HDMI1 back to monitors, undo 3.6. |
 | No `cooling_fan/hwmon` folder (`no fan device` in 4.1) | The fan cable, or the fan device wasn't switched on at boot: it's `disabled` in the base device tree, and the fan lines of 4.2 don't switch it on | Check the fan cable on the FAN connector. If it's fine, add one more line at the end of `config.txt` with `echo 'dtparam=cooling_fan=on' \| sudo tee -a /boot/firmware/config.txt`, then reboot. |
 | `pwm1` isn't 255 after 4.3 | The fan lines have a typo, or they ended up in a board section such as `[cm4]` instead of after the last `[all]` | `tail -n 7 /boot/firmware/config.txt` must match the expected output in 4.2 |
