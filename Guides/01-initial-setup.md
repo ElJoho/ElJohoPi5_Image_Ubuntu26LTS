@@ -367,10 +367,10 @@ dpkg-query -W gnome-remote-desktop          # gnome-remote-desktop  50.2-0ubuntu
 ```bash
 mkdir -p ~/.local/share/gnome-remote-desktop
 openssl req -new -newkey rsa:4096 -days 3650 -noenc -x509 -subj /CN=unpi \
-  -keyout ~/.local/share/gnome-remote-desktop/tls.key \
-  -out ~/.local/share/gnome-remote-desktop/tls.crt
-chmod 600 ~/.local/share/gnome-remote-desktop/tls.key
-openssl x509 -in ~/.local/share/gnome-remote-desktop/tls.crt -noout -subject -enddate
+  -keyout ~/.local/share/gnome-remote-desktop/rdp-tls.key \
+  -out ~/.local/share/gnome-remote-desktop/rdp-tls.crt
+chmod 600 ~/.local/share/gnome-remote-desktop/rdp-tls.key
+openssl x509 -in ~/.local/share/gnome-remote-desktop/rdp-tls.crt -noout -subject -enddate
 ```
 
 Expected: a few lines of dots and `+` while the key is generated, then `subject=CN=unpi` and a `notAfter=` date ten years from today.
@@ -378,8 +378,8 @@ Expected: a few lines of dots and `+` while the key is generated, then `subject=
 **2. Configure Desktop Sharing and switch it on:**
 
 ```bash
-grdctl rdp set-tls-key ~/.local/share/gnome-remote-desktop/tls.key
-grdctl rdp set-tls-cert ~/.local/share/gnome-remote-desktop/tls.crt
+grdctl rdp set-tls-key ~/.local/share/gnome-remote-desktop/rdp-tls.key
+grdctl rdp set-tls-cert ~/.local/share/gnome-remote-desktop/rdp-tls.crt
 grdctl rdp set-credentials unpi unpi
 grdctl rdp disable-view-only
 grdctl rdp disable-port-negotiation
