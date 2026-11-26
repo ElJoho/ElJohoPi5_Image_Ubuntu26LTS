@@ -37,7 +37,7 @@ It stops there. ROS 2 Lyrical and the KIT Phantom X Pincher dependencies come in
 | Where | Used for |
 |---|---|
 | **PC**: your Ubuntu PC's terminal (`johotan@…`) | Imager, `nmcli` on `enp4s0`, `ping`, the RDP client (Remmina) |
-| **Pi**: GNOME Terminal on the Pi's monitor (`Ctrl+Alt+T`) in Parts 1–3.6, then a terminal inside the RDP window (there's no SSH; see 1.4) | `apt`, `nmcli` on `eth0`, `/boot/firmware`, `/sys/...` |
+| **Pi**: the terminal on the Pi's monitor (`Ctrl+Alt+T` opens Ubuntu's terminal, **Ptyxis**) in Parts 1–3.6, then a terminal inside the RDP window (there's no SSH; see 1.4) | `apt`, `nmcli` on `eth0`, `/boot/firmware`, `/sys/...` |
 
 `sudo` on the Pi asks for the Pi's password. Nothing appears while you type it.
 
@@ -164,7 +164,7 @@ Your PC then has three profiles on `enp4s0`:
 
 5. The wizard logs you in to GNOME.
 
-### 1.7 First checks (Pi, GNOME Terminal: `Ctrl+Alt+T`)
+### 1.7 First checks (Pi, terminal: `Ctrl+Alt+T` opens Ptyxis)
 
 ```bash
 grep PRETTY_NAME /etc/os-release       # PRETTY_NAME="Ubuntu 26.04.1 LTS"
@@ -463,7 +463,7 @@ Desktop Sharing shows the session running on the Pi's screen (the monitor now, H
 3. Check:
 
    ```bash
-   grep -iE '^\s*AutomaticLogin' /etc/gdm3/custom.conf                        # AutomaticLoginEnable=True and AutomaticLogin=unpi
+   grep -iE '^\s*AutomaticLogin' /etc/gdm3/custom.conf                        # AutomaticLoginEnable=true (Settings may write True; both work) and AutomaticLogin=unpi
    gsettings get org.gnome.desktop.session idle-delay                         # uint32 0
    gsettings get org.gnome.desktop.screensaver lock-enabled                   # false
    gsettings get org.gnome.settings-daemon.plugins.power sleep-inactive-ac-type   # 'nothing'

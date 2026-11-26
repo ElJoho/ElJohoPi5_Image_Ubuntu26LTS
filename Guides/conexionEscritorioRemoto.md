@@ -255,6 +255,16 @@ Luego **Save and Connect** (*Guardar y conectar*). Las siguientes veces basta co
 
 ### 5.2 Actualizar el repositorio y compilar
 
+**Una sola vez en cada Raspberry** grabada con la imagen `v2026.11.26`: esa imagen descarga las actualizaciones del repositorio del kit desde una dirección anterior. Este comando la cambia por la del repositorio actual, [ElJoho_KIT_Phantom_X_Pincher_ROS2](https://github.com/ElJoho/ElJoho_KIT_Phantom_X_Pincher_ROS2):
+
+```bash
+cd ~/ros2/KIT_Phantom_X_Pincher_ROS2
+git remote set-url origin https://github.com/ElJoho/ElJoho_KIT_Phantom_X_Pincher_ROS2.git
+git remote -v     # las dos líneas deben terminar en ElJoho/ElJoho_KIT_Phantom_X_Pincher_ROS2.git
+```
+
+Luego, cada vez que quieras actualizar y compilar:
+
 ```bash
 cd ~/ros2/KIT_Phantom_X_Pincher_ROS2
 git pull

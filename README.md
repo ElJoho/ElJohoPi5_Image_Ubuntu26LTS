@@ -307,6 +307,14 @@ Como esta es una imagen restaurada del sistema anterior, la configuración del s
 
 Para ver el escritorio de la Raspberry Pi desde un computador con Windows o Linux, conéctala por **cable Ethernet** y sigue la guía **[Conexión con Escritorio remoto (RDP)](Guides/conexionEscritorioRemoto.md)**: IP `192.168.10.2`, usuario `unpi`, contraseña `unpi`.
 
+**Una sola vez, para recibir las actualizaciones del repositorio del kit:** en una terminal de la Raspberry Pi, ejecuta:
+
+```bash
+git -C ~/ros2/KIT_Phantom_X_Pincher_ROS2 remote set-url origin https://github.com/ElJoho/ElJoho_KIT_Phantom_X_Pincher_ROS2.git
+```
+
+La imagen `v2026.11.26` trae el repositorio del kit apuntando a una dirección anterior, que ya no recibe cambios. Ver la sección 5.2 de la [guía de escritorio remoto](Guides/conexionEscritorioRemoto.md#52-actualizar-el-repositorio-y-compilar).
+
 Si la Raspberry Pi no aparece inmediatamente:
 
 1. Espera un momento mientras termina de iniciar.
@@ -412,6 +420,13 @@ Por eso es importante verificar que seleccionaste la microSD o SSD correcta ante
 12. Insertar la microSD o SSD en la Raspberry Pi 5 e iniciar el sistema.
 13. Conectarse por escritorio remoto con la guía Guides/conexionEscritorioRemoto.md.
 ```
+
+---
+
+## 9) Guías de este repositorio
+
+* **[Conexión con Escritorio remoto (RDP)](Guides/conexionEscritorioRemoto.md):** cómo ver y controlar el escritorio de la Raspberry Pi desde Windows o Linux, por cable Ethernet.
+* **[Guide 1 — Initial setup](Guides/01-initial-setup.md)** (en inglés): cómo se preparó la imagen: Ubuntu Desktop 26.04.1, red por cable, escritorio remoto sin monitor y ventilador al 100 %.
 
 ---
 
