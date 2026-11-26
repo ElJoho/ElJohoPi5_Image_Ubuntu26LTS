@@ -220,7 +220,7 @@ The method is the same as in the Server guide: one fixed address on the Pi's cab
 | Network service on the Pi | `systemd-networkd` (netplan file) | NetworkManager (`nmcli` profile `pi-cable`) |
 | Pi address | `192.168.77.2/24` plus DHCP | `192.168.10.2/24` fixed, with `192.168.10.1` as gateway and DNS |
 | PC profile | `pi-shared` (`192.168.77.1`) | `pi-lab-shared` (`192.168.10.1`, with internet) or `pi-direct` (`192.168.10.3`, without) |
-| Internet through the cable | Yes, with `pi-shared` | Yes with `pi-lab-shared`. No with `pi-direct`, or with a Windows PC set up as in the KIT guide. |
+| Internet through the cable | Yes, with `pi-shared` | Yes with `pi-lab-shared`. No with `pi-direct`, or with a Windows PC set up as in [section 2.1 of the remote-desktop guide](conexionEscritorioRemoto.md#21-en-windows). |
 | SSH server | Already in the image | Must be installed (2.1) |
 
 **Why a fixed address instead of DHCP plus a fixed one:**
@@ -506,7 +506,7 @@ remmina -c rdp://unpi@192.168.10.2
 2. **Password:** `unpi`.
 3. You should see the same desktop as on the monitor, and the mouse and keyboard should work.
 
-**From a Windows PC (Remote Desktop Connection, built in).** The Windows PC's cable port must be on `192.168.10.x`, for example `192.168.10.1` as in the KIT guide.
+**From a Windows PC (Remote Desktop Connection, built in).** The Windows PC's cable port must be on `192.168.10.x`, for example `192.168.10.1` as in [section 2.1 of the remote-desktop guide](conexionEscritorioRemoto.md#21-en-windows).
 
 1. Press `Win+R`, type `mstsc` and press Enter.
 2. **Computer:** `192.168.10.2`. The size of the remote desktop is set by the Pi's screen, so the **Display** tab can stay as it is.
