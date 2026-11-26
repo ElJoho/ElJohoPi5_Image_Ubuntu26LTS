@@ -23,7 +23,7 @@ It stops there. ROS 2 Lyrical and the KIT Phantom X Pincher dependencies come in
 | Kernel in the image | `7.0.0-1017-raspi` | Newer after the update in Part 1 |
 | Desktop | GNOME 50 on **Wayland only** (`gdm3` 50.1, `gnome-shell` 50.1) | GNOME 50 has no X11 session |
 | Hostname / user / password | **`unpi`** / **`unpi`** / **`unpi`** | The user and password are the ones the KIT guides use. The hostname matches them; on the network the Pi is also `unpi.local`. The password is public on purpose, so see the warning below. |
-| Pi cable address | `192.168.10.2/24`, gateway and DNS `192.168.10.1` | The same address as the old 24.04 lab image ([UNPi5](https://github.com/labsir-un/UNPi5_Image_Ubuntu24_04)) and the [KIT NoMachine guide](https://github.com/labsir-un/KIT_Phantom_X_Pincher_ROS2/blob/main/guias/Setup/conexionNoMachine.md). Students' Windows PCs set to `192.168.10.1` work unchanged. |
+| Pi cable address | `192.168.10.2/24`, gateway and DNS `192.168.10.1` | The same address as the old 24.04 lab image ([UNPi5](https://github.com/labsir-un/UNPi5_Image_Ubuntu24_04)) and the [remote-desktop guide](conexionEscritorioRemoto.md). Students' Windows PCs set to `192.168.10.1` work unchanged. |
 | PC cable address | `192.168.10.1` with the new `pi-lab-shared` profile (internet sharing, for setup), or `192.168.10.3` with your existing `pi-direct` profile (no sharing) | Both on `enp4s0`; see 1.5. The method is the same as in [Server Guide 3](https://github.com/ElJoho/ElJoho_Pi_Ros2_UbuntuServer26/blob/main/Guides/03-ubuntu-pc-ethernet-connection.md). |
 | Remote desktop on the Pi | **GNOME Remote Desktop 50.2** (`gnome-remote-desktop`, already in the image), RDP on port **3389**, *Desktop Sharing* mode | Free and open source (GPL-2.0 or later). RDP login `unpi` / `unpi`. See Part 3. |
 | Remote desktop clients | Windows: **Remote Desktop Connection** (`mstsc`, built in). Ubuntu PC: **Remmina** 1.4.43, installed in 3.5 | |
@@ -750,7 +750,7 @@ Expected:
 
 - **Remote desktop identity:** every card flashed from the image shares the same TLS certificate and the same RDP login, `unpi` / `unpi`. That's acceptable on the direct cable. To give one Pi its own certificate, repeat 3.3 steps 1 and 2 on it; clients then warn once about the new certificate.
 - **The login keyring is unencrypted (3.4 step 4).** Don't save personal passwords on the Pi before capturing the image, because they would be copied to every card in plain text.
-- **Names:** the address (`192.168.10.2`) and the login (`unpi` / `unpi`) match the KIT Phantom X Pincher guides (`guias/Setup/conexionNoMachine.md`, `guiaSamba.md`). The hostname is `unpi` as well.
+- **Names:** the address (`192.168.10.2`) and the login (`unpi` / `unpi`) match the KIT Phantom X Pincher guides: the [remote-desktop guide](conexionEscritorioRemoto.md) and the KIT repo's [`guiaSamba.md`](https://github.com/ElJoho/ElJoho_KIT_Phantom_X_Pincher_ROS2/blob/main/guias/Setup/guiaSamba.md). The hostname is `unpi` as well.
 
 ---
 
