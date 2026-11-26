@@ -9,7 +9,7 @@ This guide takes a Raspberry Pi 5 from an empty microSD card to a running **Ubun
 
 It stops there. ROS 2 Lyrical and the KIT Phantom X Pincher dependencies come in later guides.
 
-> Checked on 2026-11-10 against the published image `ubuntu-26.04.1-preinstalled-desktop-arm64+raspi.img.xz` (its boot partition and package manifest), Ubuntu's source for the kernel it ships and Raspberry Pi Imager's OS list. Part 3 was checked on 2026-11-11 against the source of GNOME Remote Desktop 50.2, the version in the image. On 2026-11-26 its headless screen (3.6) was changed to the one in the published lab image `v2026.11.26` and in annex A.4 of the KIT remote-desktop guide ([`conexionEscritorioRemoto.md`](conexionEscritorioRemoto.md)): a 1328×748, 15 Hz virtual screen on HDMI1. **The full procedure hasn't been run on the Pi yet**: each part ends with the checks that prove it worked.
+> Checked on 2026-11-10 against the published image `ubuntu-26.04.1-preinstalled-desktop-arm64+raspi.img.xz` (its boot partition and package manifest), Ubuntu's source for the kernel it ships and Raspberry Pi Imager's OS list. Part 3 was checked on 2026-11-11 against the source of GNOME Remote Desktop 50.2, the version in the image. On 2026-11-26 its headless screen (3.6) was changed to the one in the published lab image `v2026.11.26` and in annex A.4 of the KIT remote-desktop guide ([`conexionEscritorioRemoto.md`](conexionEscritorioRemoto.md)): a 1328×748, 15 Hz virtual screen on HDMI1. The same day, SSH and the fan were aligned with that image too: it has no SSH server, so every remote step uses the remote desktop, and Part 4 adds the image's fan lines. **The full procedure hasn't been run on the Pi yet**: each part ends with the checks that prove it worked.
 > Based on the Ubuntu Server guides ([ElJoho_Pi_Ros2_UbuntuServer26](https://github.com/ElJoho/ElJoho_Pi_Ros2_UbuntuServer26)) and the previous Desktop image ([UNPi5_Image_Ubuntu24_04](https://github.com/labsir-un/UNPi5_Image_Ubuntu24_04)).
 
 ---
@@ -30,14 +30,14 @@ It stops there. ROS 2 Lyrical and the KIT Phantom X Pincher dependencies come in
 | Headless display | `HDMI-A-2` (the **HDMI1** port, the micro-HDMI port farther from the USB-C power) forced on with an EDID file that offers only **1328×748 at 15 Hz** | `HDMI-A-1` (**HDMI0**, next to the USB-C power) is left as it is, so a monitor there keeps working |
 
 > [!WARNING]
-> The password is public. **Never forward port 22 (SSH) or 3389 (RDP) to this Pi**, and never put it on a network that can be reached from the internet. Keep it on the direct cable or a private LAN.
+> The password is public. **Never forward port 3389 (RDP) to this Pi**, and never put it on a network that can be reached from the internet. Keep it on the direct cable or a private LAN.
 
 ### Where to type each command
 
 | Where | Used for |
 |---|---|
-| **PC**: your Ubuntu PC's terminal (`johotan@…`) | Imager, `nmcli` on `enp4s0`, `ssh`, the RDP client (Remmina) |
-| **Pi**: GNOME Terminal on the Pi's monitor (`Ctrl+Alt+T`) in Parts 1–3.6, then an SSH login from the PC | `apt`, `nmcli` on `eth0`, `/boot/firmware`, `/sys/...` |
+| **PC**: your Ubuntu PC's terminal (`johotan@…`) | Imager, `nmcli` on `enp4s0`, `ping`, the RDP client (Remmina) |
+| **Pi**: GNOME Terminal on the Pi's monitor (`Ctrl+Alt+T`) in Parts 1–3.6, then a terminal inside the RDP window (there's no SSH; see 1.4) | `apt`, `nmcli` on `eth0`, `/boot/firmware`, `/sys/...` |
 
 `sudo` on the Pi asks for the Pi's password. Nothing appears while you type it.
 
@@ -59,7 +59,7 @@ Find the card by its size: a 64 GB card shows as about 58–60 GB. Your `nvme0n1
 2. **CHOOSE DEVICE** → **Raspberry Pi 5**.
 3. **CHOOSE OS** → **Other general-purpose OS** → **Ubuntu** → **Ubuntu Desktop 26.04.1 (64-bit)**. Don't pick Desktop 26.10, Server 26.04.1 or Desktop 24.04.5.
 4. **CHOOSE STORAGE** → the card from 1.1. Leave **Exclude system drives** ticked.
-5. **NEXT.** Imager goes straight to the erase warning. **It doesn't offer OS customisation for Ubuntu Desktop**, because its OS list marks this image as `"init_format": "none"`. The hostname, user, Wi-Fi and SSH are therefore set at the Pi in 1.6–2.1. If a customisation dialog appears anyway, answer **NO**; those settings wouldn't be applied.
+5. **NEXT.** Imager goes straight to the erase warning. **It doesn't offer OS customisation for Ubuntu Desktop**, because its OS list marks this image as `"init_format": "none"`. The hostname, user and Wi-Fi are therefore set at the Pi in 1.6–1.7. If a customisation dialog appears anyway, answer **NO**; those settings wouldn't be applied.
 6. **YES** → enter your PC password. Imager downloads, writes and verifies the image, which takes about 10–30 minutes depending on the card.
 
 **Optional route B, a file you downloaded yourself.** In step 3, choose **Use custom** and pick the `.img.xz` file; don't unpack it. To download and check it:
@@ -103,7 +103,7 @@ Eject the card (the ⏏ next to `system-boot` in Files) and take it out.
 
 - Imager can't pre-configure Ubuntu Desktop (1.2, step 5).
 - The image creates your account with GNOME's interactive first-run setup (`gnome-initial-setup` 50).
-- **The image has no SSH server.** `openssh-server` isn't in its package list, so nothing can log in remotely until you install it in 2.1.
+- **The image has no SSH server.** `openssh-server` isn't in its package list, and the lab image doesn't add one: the way in from another PC is the remote desktop (RDP) of Part 3. Until it works, you use the Pi at its monitor.
 
 You need:
 
@@ -132,7 +132,7 @@ Your PC then has three profiles on `enp4s0`:
 | Profile | PC address | Pi gets internet? | Used for |
 |---|---|---|---|
 | **`pi-lab-shared`** (new) | `192.168.10.1/24`, internet sharing | ✅ Yes | **This Pi, during setup** and whenever it needs `apt` |
-| `pi-direct` (existing, unchanged) | `192.168.10.3/24` | ❌ No | This Pi and the old lab Pis, for SSH and the remote desktop only |
+| `pi-direct` (existing, unchanged) | `192.168.10.3/24` | ❌ No | This Pi and the old lab Pis, for the remote desktop only |
 | `pi-shared` (existing, unchanged) | `192.168.77.1/24`, internet sharing | — | The Ubuntu Server card at `192.168.77.2` |
 
 - **`connection.autoconnect no`:** the new profile only starts when you run `nmcli connection up pi-lab-shared`. It never starts by itself, which matters on a port that can be plugged into another network, because it hands out addresses.
@@ -221,7 +221,7 @@ The method is the same as in the Server guide: one fixed address on the Pi's cab
 | Pi address | `192.168.77.2/24` plus DHCP | `192.168.10.2/24` fixed, with `192.168.10.1` as gateway and DNS |
 | PC profile | `pi-shared` (`192.168.77.1`) | `pi-lab-shared` (`192.168.10.1`, with internet) or `pi-direct` (`192.168.10.3`, without) |
 | Internet through the cable | Yes, with `pi-shared` | Yes with `pi-lab-shared`. No with `pi-direct`, or with a Windows PC set up as in [section 2.1 of the remote-desktop guide](conexionEscritorioRemoto.md#21-en-windows). |
-| SSH server | Already in the image | Must be installed (2.1) |
+| SSH server | Already in the image | None. The remote desktop (Part 3) is used instead. |
 
 **Why a fixed address instead of DHCP plus a fixed one:**
 
@@ -229,17 +229,7 @@ The method is the same as in the Server guide: one fixed address on the Pi's cab
 - **What the fixed address gives you:** it always comes up, whichever PC profile is active. With `pi-lab-shared` on the PC, the Pi also gets internet through the PC.
 - **Wi-Fi stays first:** `route-metric 700` ranks the cable after Wi-Fi (600), so if you later add Wi-Fi, the Pi uses Wi-Fi for internet first.
 
-### 2.1 Install the SSH server (Pi)
-
-```bash
-sudo apt install -y openssh-server
-ss -tln 'sport = :22'                                # LISTEN on 0.0.0.0:22 and [::]:22
-ssh-keygen -lf /etc/ssh/ssh_host_ed25519_key.pub     # write down this fingerprint for 2.4
-```
-
-Ubuntu starts SSH on demand through `ssh.socket`, so `ssh.service` may show as inactive until the first login. That's normal.
-
-### 2.2 Give `eth0` its fixed address (Pi)
+### 2.1 Give `eth0` its fixed address (Pi)
 
 ```bash
 nmcli device status | grep ethernet       # the cable port, normally eth0. If it's different, use that name below.
@@ -261,7 +251,7 @@ sudo nmcli connection up pi-cable
 
 > Run the `add` command **only once**. Running it twice creates two profiles with the same name. To check and clean up: `nmcli -f NAME,UUID connection show | grep pi-cable`, then `sudo nmcli connection delete <UUID>` for the extra one.
 
-### 2.3 Check on the Pi
+### 2.2 Check on the Pi
 
 ```bash
 nmcli -f NAME,DEVICE,AUTOCONNECT,AUTOCONNECT-PRIORITY connection show
@@ -271,33 +261,31 @@ ping -c 3 192.168.10.1       # the PC answers (pi-lab-shared is on)
 ping -c 3 ubuntu.com         # internet through pi-lab-shared
 ```
 
-### 2.4 Check from the PC
+### 2.3 Check from the PC
 
 ```bash
-ssh-keygen -R 192.168.10.2          # forget the old 24.04 lab card's identity: same address, different card
 ping -c 3 192.168.10.2              # three replies, each under 1 ms
-ssh unpi@192.168.10.2           # compare the fingerprint with 2.1, answer yes, password unpi
 ```
 
-Inside the SSH session, `hostname` must print `unpi`. Type `exit` to leave.
+This checks the cable and the address. The login from the PC comes with the remote desktop in Part 3.
 
 **Check the everyday profile too.** It doesn't share the PC's internet, but it must reach the Pi:
 
 ```bash
 nmcli connection up pi-direct       # PC becomes 192.168.10.3
 ping -c 3 192.168.10.2
-ssh unpi@192.168.10.2 hostname  # prints unpi
 nmcli connection up pi-lab-shared   # back to sharing, so the Pi has internet again
 ```
 
-**Rescue path, if `192.168.10.2` doesn't answer:**
+**If `192.168.10.2` doesn't answer:**
 
 ```bash
-ping -6 -c 3 ff02::1%enp4s0                       # every device on the cable answers; the one that isn't the PC is the Pi
-ssh unpi@fe80::2ecf:67ff:fe6c:4e6e%enp4s0     # the link-local address (same board as the Server guide)
+ping -6 -c 3 ff02::1%enp4s0         # every device on the cable answers; the one that isn't the PC is the Pi
 ```
 
-✅ **Part 2 done:** `ssh unpi@192.168.10.2` works over the cable with both PC profiles, and with `pi-lab-shared` the Pi has internet through the PC.
+If the Pi answers there, the cable works and the problem is the Pi's address: at the Pi's monitor, go through 2.1 and 2.2 again.
+
+✅ **Part 2 done:** the PC reaches the Pi at `192.168.10.2` over the cable with both PC profiles, and with `pi-lab-shared` the Pi has internet through the PC.
 
 ---
 
@@ -554,7 +542,7 @@ zswap.enabled=1 zswap.compressor=zstd multipath=off dwc_otg.lpm_enable=0 console
 | `grep -q … \|\|` | Running the block a second time doesn't add them twice |
 | `1 line(s)` | Proves the file is still a single line. It ships without a final newline, and `sed` keeps it that way. |
 
-**To undo:** `sudo cp ~/cmdline.txt.orig /boot/firmware/current/cmdline.txt`. With no SSH, put the card in the PC and edit `/media/$USER/system-boot/current/cmdline.txt` instead. The EDID file can stay; without the settings nothing uses it.
+**To undo:** `sudo cp ~/cmdline.txt.orig /boot/firmware/current/cmdline.txt`. If the remote desktop doesn't come back, use a monitor on HDMI0 (3.6 doesn't change that port), or put the card in the PC and edit `/media/$USER/system-boot/current/cmdline.txt` instead. The EDID file can stay; without the settings nothing uses it.
 
 ### 3.7 Go headless (Pi)
 
@@ -564,13 +552,9 @@ sudo poweroff
 
 Wait for the **red** LED. Unplug the monitor, keyboard and mouse, and **leave the Ethernet cable connected**. Power the Pi back on (press its power button, or unplug and replug the power) and wait about 2 minutes.
 
-### 3.8 Verify over SSH (PC → Pi)
+### 3.8 Connect over RDP and verify (PC → Pi, no monitor)
 
-```bash
-ssh unpi@192.168.10.2
-```
-
-Then, on the Pi:
+Connect as in 3.5. In the RDP window, open a terminal on the Pi (**Activities** → type `terminal`) and run:
 
 ```bash
 tr ' ' '\n' < /proc/cmdline | grep -E '^(drm\.edid_firmware=|video=)'
@@ -593,7 +577,6 @@ video=HDMI-A-2:1328x748@15D
 card1-HDMI-A-1: disconnected, disabled, modes:
 card1-HDMI-A-2: connected, enabled, modes: 1328x748
 Name=unpi Type=wayland Class=user Active=yes
-Name=unpi Type=tty Class=user Active=…      ← your SSH login; normal
 active
 1                                           ← at least 1 LISTEN line for port 3389
 	Unit status: active
@@ -606,20 +589,22 @@ active
 - **`Type=wayland … Active=yes`** means automatic login worked.
 - **`active`, a `LISTEN` line and `Username: (hidden)`** mean Desktop Sharing started with the session and could read its login from the keyring. If `grdctl` prints `Failed to read credentials` instead, the keyring is still locked; see 3.4 step 4.
 
-### 3.9 Connect over RDP without a monitor (PC or Windows)
+**If the client can't connect, or its window stays black:** plug a monitor into **HDMI0** and a keyboard (3.6 doesn't change that port), and run the same block in a terminal there. `HDMI-A-1` then shows `connected` as well.
 
-Connect as in 3.5, then check:
+### 3.9 Check the desktop and a reboot (RDP, no monitor)
+
+In the same RDP window, check:
 
 - [ ] The desktop appears, and it isn't black.
 - [ ] **Settings → Displays** shows one display at **1328 × 748** with a refresh rate of **15.00 Hz**. It's the only size offered, because the EDID file has a single mode.
 - [ ] In a terminal inside the RDP window, `echo $XDG_SESSION_TYPE` prints `wayland`.
-- [ ] **Reboot test:** disconnect the client, run `ssh -t unpi@192.168.10.2 sudo reboot` on the PC, wait about 2 minutes, and connect again without touching the Pi.
+- [ ] **Reboot test:** in the terminal inside the RDP window, run `sudo reboot`. The client disconnects. Wait about 2 minutes and connect again without touching the Pi.
 
-**If the desktop doesn't appear:** first check that 3.8 shows `connected, enabled`, `Type=wayland` and the three Desktop Sharing lines. If it does and the window is still black, plug a **dummy HDMI plug** into HDMI0 and reboot. Set the plug to a small size in **Settings → Displays**, because many plugs report 1920 × 1080 or 4K, which is 2 to 8 times the pixels of 1328 × 748 to encode.
+**If the desktop doesn't appear:** first run the 3.8 block at a monitor on HDMI0 and check that it shows `connected, enabled` for `HDMI-A-2`, `Type=wayland` and the three Desktop Sharing lines. If it does and the window is still black, unplug the monitor, plug a **dummy HDMI plug** into HDMI0 and reboot. Set the plug to a small size in **Settings → Displays**, because many plugs report 1920 × 1080 or 4K, which is 2 to 8 times the pixels of 1328 × 748 to encode.
 
-### 3.10 Measure the load on the Pi (PC → Pi over SSH, RDP client connected)
+### 3.10 Measure the load on the Pi (terminal inside the RDP window)
 
-This records what the remote desktop really costs on this Pi. Keep the RDP window open, and in a **second** PC terminal, log in with `ssh unpi@192.168.10.2`.
+This records what the remote desktop really costs on this Pi. There's no SSH, so the measurement runs in a terminal inside the RDP window. So that the terminal itself doesn't add screen activity, each measurement waits 15 seconds and then writes to a file instead of the screen.
 
 First find the two processes that do the work: GNOME Shell captures the screen, and the remote desktop service compresses it.
 
@@ -627,13 +612,13 @@ First find the two processes that do the work: GNOME Shell captures the screen, 
 PIDS="$(pgrep -d, -x gnome-shell),$(pgrep -d, -f gnome-remote-desktop-daemon)"; echo "$PIDS"   # two numbers, e.g. 1834,2210
 ```
 
-For each scene below, start the scene, then run:
+For each scene below, run this in the same terminal, replacing `X` with the scene letter, and start the scene within 15 seconds:
 
 ```bash
-top -b -d 5 -n 7 -p "$PIDS" | grep -E '^%Cpu|gnome-'
+sleep 15; top -b -d 5 -n 7 -p "$PIDS" | grep -E '^%Cpu|gnome-' > ~/top-X.txt; echo done
 ```
 
-It prints 7 samples, 5 seconds apart. **Ignore the first sample**, because it doesn't cover a full 5-second interval. In each of the others, read these values:
+It takes about 50 seconds. When `done` appears, read the result with `cat ~/top-X.txt`. It holds 7 samples, 5 seconds apart. **Ignore the first sample**, because it doesn't cover a full 5-second interval. In each of the others, read these values:
 
 | Value in `top` | Meaning |
 |---|---|
@@ -641,11 +626,11 @@ It prints 7 samples, 5 seconds apart. **Ignore the first sample**, because it do
 | `%CPU` on the `gnome-shell` line | Drawing and capturing the screen |
 | `id` on the `%Cpu(s)` line | Idle share of the **whole** CPU. The total load is 100 − `id`. |
 
-| Scene | What to do in the RDP window during the 35 seconds | `gnome-remote-de` %CPU | `gnome-shell` %CPU | Total (100 − `id`) |
+| Scene | What to do after starting the command | `gnome-remote-de` %CPU | `gnome-shell` %CPU | Total (100 − `id`) |
 |---|---|---|---|---|
-| A. Baseline | **Disconnect** the client first | | | |
-| B. Still desktop | Connect, then touch nothing | | | |
-| C. Terminal output | In a terminal in the RDP window: `ls -lR /usr` (stop it with `Ctrl+C` afterwards) | | | |
+| A. Baseline | **Disconnect** the client. Connect again after a minute and read `~/top-A.txt`. | | | |
+| B. Still desktop | Minimize the terminal (its `–` button), then touch nothing | | | |
+| C. Terminal output | Open a **second** terminal window and run `ls -lR /usr` (stop it with `Ctrl+C` afterwards) | | | |
 | D. Constant motion | Drag a window around the screen without stopping | | | |
 
 - **Fill in the table on the Pi and keep it.** It's the real answer to "how much does the remote desktop load the Pi". RViz and Gazebo, the heavy ROS 2 tools, are measured the same way in the ROS 2 guide.
@@ -661,10 +646,10 @@ It prints 7 samples, 5 seconds apart. **Ignore the first sample**, because it do
 
 - **Who drives the fan:** the Linux `pwm-fan` driver, at four "cooling levels" tied to CPU temperature points.
 - **What Ubuntu's device tree sets:** the levels switch on at 50, 60, 67.5 and 75 °C, at speeds 75, 125, 175 and 250 out of 255.
-- **What this part changes:** `config.txt` settings set **every level to 255** and **move the first switch-on point down to 10 °C**. A running Pi 5 is always warmer than that, so the fan runs at 255 from the moment Linux loads the fan driver, in the first seconds of boot.
-- **Checked on the image:** its Pi 5 device tree (`current/bcm2712-rpi-5-b.dtb`, and the same for `bcm2712d0-rpi-5-b.dtb`) defines `cooling_fan` and `fan_temp0…3` with `_hyst` and `_speed`. The `cooling_fan` device is disabled in the base tree, so `dtparam=cooling_fan=on` switches it on explicitly.
+- **What this part changes:** four `config.txt` lines, the same ones as in the lab image, set **every level to 255** and **move the four switch-on points down to 10, 15, 20 and 25 °C**. A running Pi 5 is always warmer than that, so the fan runs at 255 from the moment Linux loads the fan driver, in the first seconds of boot.
+- **Checked on the image:** its Pi 5 device trees (`current/bcm2712-rpi-5-b.dtb` and `bcm2712d0-rpi-5-b.dtb`) define `fan_temp0…3` with `_hyst` and `_speed`, and a `cooling_fan` setting. In the base tree the fan device is marked `disabled`, and the lab image doesn't set `dtparam=cooling_fan=on`. So 4.1 and 4.3 check that the fan device really exists; if it doesn't, see Troubleshooting.
 
-### 4.1 Before (Pi, over SSH)
+### 4.1 Before (Pi, terminal inside the RDP window)
 
 ```bash
 F=$(ls -d /sys/devices/platform/cooling_fan/hwmon/hwmon* 2>/dev/null); echo "${F:-no fan device}"
@@ -675,39 +660,55 @@ cd /sys/class/thermal/thermal_zone0 && for t in trip_point_*_temp; do n=${t%_tem
 
 With the default settings, `pwm1` is between 0 and 250 depending on the temperature. The switch-on points are `critical 110000` and `active 50000 / 60000 / 67500 / 75000`.
 
-If it prints `no fan device`, check the fan cable on the FAN connector. Step 4.2 also switches the device on.
+If it prints `no fan device`, check the fan cable on the FAN connector, then see Troubleshooting.
 
 ### 4.2 Edit `config.txt` (Pi)
 
-The file is **`/boot/firmware/config.txt`**, at the root of the boot partition, **not** in `current/`.
+The file is **`/boot/firmware/config.txt`**, at the root of the boot partition, **not** in `current/`. It's never replaced: the bootloader reads it before `os_prefix` applies, and kernel updates don't rewrite it.
 
-- **It's never replaced:** the bootloader reads it before `os_prefix` applies, and kernel updates don't rewrite it.
-- **Position matters:** settings for the base device tree must come **before the first `dtoverlay=` line** (Ubuntu's own `config.txt` says so). So the block goes right after `dtparam=watchdog=on`.
+The block below does what was done in the lab image: it saves a dated copy of the file next to it, then adds a comment and the four fan lines at the end.
 
 ```bash
-cp /boot/firmware/config.txt ~/config.txt.orig
-grep -q '^dtparam=fan_temp0_speed=' /boot/firmware/config.txt || sudo sed -i '/^dtparam=watchdog=on$/a\
-# Pi 5 fan: 100% (255) at every cooling level, from early boot\
-dtparam=cooling_fan=on\
-dtparam=fan_temp0=10000\
-dtparam=fan_temp0_hyst=5000\
-dtparam=fan_temp0_speed=255\
-dtparam=fan_temp1_speed=255\
-dtparam=fan_temp2_speed=255\
-dtparam=fan_temp3_speed=255' /boot/firmware/config.txt
-grep -n -E '^(dtparam|dtoverlay)=' /boot/firmware/config.txt
+F=/boot/firmware/config.txt; B=config.txt.bak-$(date +%Y%m%d)
+grep -q '^dtparam=fan_temp0=' $F || { sudo cp $F /boot/firmware/$B && printf '%s\n' '' \
+  "# Fan always at maximum speed (set $(date +%F)). Undo: restore $B" \
+  'dtparam=fan_temp0=10000,fan_temp0_hyst=5000,fan_temp0_speed=255' \
+  'dtparam=fan_temp1=15000,fan_temp1_hyst=5000,fan_temp1_speed=255' \
+  'dtparam=fan_temp2=20000,fan_temp2_hyst=5000,fan_temp2_speed=255' \
+  'dtparam=fan_temp3=25000,fan_temp3_hyst=5000,fan_temp3_speed=255' | sudo tee -a $F > /dev/null; }
+tail -n 7 $F
 ```
 
-The last command must list, in this order: `audio`, `i2c_arm`, `spi`, `watchdog`, **the seven fan lines**, and only then `dtoverlay=vc4-kms-v3d`.
+Expected, with today's date in the comment:
 
-| Line | Default | New | Effect |
+```
+[all]
+
+# Fan always at maximum speed (set 2026-11-26). Undo: restore config.txt.bak-20261126
+dtparam=fan_temp0=10000,fan_temp0_hyst=5000,fan_temp0_speed=255
+dtparam=fan_temp1=15000,fan_temp1_hyst=5000,fan_temp1_speed=255
+dtparam=fan_temp2=20000,fan_temp2_hyst=5000,fan_temp2_speed=255
+dtparam=fan_temp3=25000,fan_temp3_hyst=5000,fan_temp3_speed=255
+```
+
+| Part | What it does |
+|---|---|
+| `grep -q … \|\|` | Running the block a second time adds nothing and keeps the first backup |
+| `sudo cp $F /boot/firmware/$B` | The backup, for example `config.txt.bak-20261126`, next to `config.txt` |
+| `printf … \| sudo tee -a $F` | Adds the lines at the end of the file. `tee -a` appends, and `sudo` is needed because the file belongs to root. |
+
+- **Why at the end:** Ubuntu's `config.txt` already ends with an `[all]` line, so the fan lines apply to every board model.
+- **After the `dtoverlay=` lines is fine here:** a `dtparam=` that comes after an overlay goes to the base device tree when that overlay has no parameter with the same name. The overlays in the file (`vc4-kms-v3d`, `dwc2`) have no fan parameters.
+- **Several settings on one line:** `dtparam=a=…,b=…,c=…` is the same as one `dtparam=` line per setting.
+
+| Line | Default (switch-on point, hysteresis, speed) | New | Effect |
 |---|---|---|---|
-| `cooling_fan=on` | off in the base tree | on | Enables the fan device and the PWM output it uses |
-| `fan_temp0=10000` | 50000 (50 °C) | 10 °C | The first level switches on almost immediately |
-| `fan_temp0_hyst=5000` | 5000 | 5000 | The first level would switch off only below 5 °C |
-| `fan_temp0_speed` … `fan_temp3_speed` | 75 / 125 / 175 / 250 | 255 | Every level means full speed, so the fan never slows down when it's hot |
+| `fan_temp0=10000,fan_temp0_hyst=5000,fan_temp0_speed=255` | 50 °C, 5 °C, 75 | 10 °C, 5 °C, 255 | The first level switches on almost immediately, at full speed |
+| `fan_temp1=15000,fan_temp1_hyst=5000,fan_temp1_speed=255` | 60 °C, 5 °C, 125 | 15 °C, 5 °C, 255 | |
+| `fan_temp2=20000,fan_temp2_hyst=5000,fan_temp2_speed=255` | 67.5 °C, 5 °C, 175 | 20 °C, 5 °C, 255 | |
+| `fan_temp3=25000,fan_temp3_hyst=5000,fan_temp3_speed=255` | 75 °C, 5 °C, 250 | 25 °C, 5 °C, 255 | Above 25 °C all four levels are on, and every level means full speed |
 
-**To undo:** `sudo cp ~/config.txt.orig /boot/firmware/config.txt`, then reboot.
+**To undo:** `sudo cp /boot/firmware/config.txt.bak-YYYYMMDD /boot/firmware/config.txt`, using the date of your backup, then reboot.
 
 ### 4.3 Reboot and verify (Pi)
 
@@ -715,7 +716,7 @@ The last command must list, in this order: `audio`, `i2c_arm`, `spi`, `watchdog`
 sudo reboot
 ```
 
-Log in again with `ssh unpi@192.168.10.2`, then:
+Connect again over RDP (3.5) and, in a terminal inside the RDP window:
 
 ```bash
 F=$(ls -d /sys/devices/platform/cooling_fan/hwmon/hwmon*)
@@ -728,10 +729,10 @@ for d in /sys/class/thermal/cooling_device*; do [ "$(cat $d/type)" = pwm-fan ] &
 Expected:
 
 - `pwm1` = **255**.
-- The first `active` switch-on point is **10000**.
-- The `pwm-fan` cooling device is at state 1 or higher, out of 4. Every state now means 255.
+- The `active` switch-on points are **10000, 15000, 20000 and 25000** (and `critical 110000`, unchanged).
+- The `pwm-fan` cooling device is at state 1 or higher, out of 4, normally 4 because the CPU is warmer than 25 °C. Every state now means 255.
 
-**From power-on:** run `sudo poweroff`, wait for the red LED, unplug the power for 10 seconds and plug it back in. The fan should go to full speed within the first seconds of boot (you'll hear it) and stay there. Check `pwm1` again after logging in.
+**From power-on:** run `sudo poweroff`, wait for the red LED, unplug the power for 10 seconds and plug it back in. The fan should go to full speed within the first seconds of boot (you'll hear it) and stay there. Check `pwm1` again after connecting again.
 
 ✅ **Part 4 done:** the fan runs at 255 at every boot.
 
@@ -739,7 +740,7 @@ Expected:
 
 ## Final check (after one more cold boot, no monitor)
 
-- [ ] `ping -c 3 192.168.10.2` and `ssh unpi@192.168.10.2` work from the PC, with `pi-lab-shared` and with `pi-direct`.
+- [ ] `ping -c 3 192.168.10.2` works from the PC with `pi-lab-shared` and with `pi-direct`, and the RDP client connects with both.
 - [ ] The 3.8 block shows the two settings in `/proc/cmdline`, `HDMI-A-2: connected, enabled, modes: 1328x748`, and a `Type=wayland … Active=yes` session.
 - [ ] An RDP client (Remmina on the PC, or Remote Desktop Connection on Windows) shows the desktop at 1328 × 748.
 - [ ] `pwm1` = 255 and `fan1_input` is at full RPM.
@@ -762,12 +763,10 @@ Expected:
 | The wizard rejects the password `unpi` | Its password-strength check | Use a temporary password, then run `echo 'unpi:unpi' \| sudo chpasswd` (1.7) |
 | The Pi gets no internet over the cable | The PC is on `pi-direct` (`192.168.10.3`) or `pi-shared` (`192.168.77.1`), neither of which shares internet on this subnet | On the PC: `nmcli connection up pi-lab-shared`, then `ip -br addr show enp4s0` must show `192.168.10.1/24` |
 | `nmcli connection up pi-lab-shared` fails | The cable has no link yet, or `dnsmasq-base` (the sharing helper) is missing | Check `cat /sys/class/net/enp4s0/carrier` = 1; `sudo apt install dnsmasq-base` |
-| `REMOTE HOST IDENTIFICATION HAS CHANGED` | The old 24.04 lab card used the same address | On the PC: `ssh-keygen -R 192.168.10.2` |
-| `ssh: … port 22: Connection refused` | `openssh-server` isn't installed | 2.1 |
 | `/proc/cmdline` doesn't contain `video=` | The edit went to `/boot/firmware/cmdline.txt`, which is ignored, or to a `current/` that a pending `new/` replaced at boot | Redo 3.6; it edits `current/` and `new/` |
 | `HDMI-A-2: connected, disabled` | Nobody is logged in, or GNOME didn't switch the output on | Check automatic login (3.4) and the `loginctl` output in 3.8, then reboot |
 | `HDMI-A-2` lists `1024x768 848x480 …` instead of only `1328x748` | The kernel couldn't read the EDID file: it's missing, or the name in `cmdline.txt` has a typo | `ls -l /lib/firmware/edid/1328x748-15.bin` (128 bytes) and `sudo dmesg \| grep -i edid`. Redo 3.6 step 1, or fix the name in `current/cmdline.txt`, then reboot. |
-| The RDP client can't connect after a reboot ("connection refused", or it times out) | The login keyring is locked, so Desktop Sharing can't read its login; or the service didn't start | Over SSH: `grdctl status`. `Failed to read credentials` means the keyring: see 3.4 step 4. Otherwise read the log: `journalctl --user -u gnome-remote-desktop -b --no-pager \| tail -n 30` |
+| The RDP client can't connect after a reboot ("connection refused", or it times out) | The login keyring is locked, so Desktop Sharing can't read its login; or the service didn't start | At a monitor on HDMI0 (3.8): `grdctl status`. `Failed to read credentials` means the keyring: see 3.4 step 4. Otherwise read the log: `journalctl --user -u gnome-remote-desktop -b --no-pager \| tail -n 30` |
 | The log says "RDP TLS certificate and key not yet configured properly" | Step 1 or the `set-tls-*` commands of 3.3 were skipped | Repeat 3.3 steps 1 and 2 |
 | The client connects, then disconnects at once | The screen locked (locking ends Desktop Sharing), or there's no active output | Check the `lock-enabled false` setting (3.4) and the 3.8 output |
 | The client shows a black window | No active output to capture | Check 3.8. If it's fine and the window is still black, use a dummy HDMI plug on HDMI0 set to a small size (3.9). |
@@ -775,8 +774,8 @@ Expected:
 | The client can watch but not click or type | View-only is still on, which is the default | `grdctl rdp disable-view-only` |
 | Nothing listens on port 3389, and the log mentions the address being in use | *Remote Login* (the system service) is also on and holds 3389 | Turn off **Settings → System → Remote Desktop → Remote Login**, then reboot |
 | A monitor shows "no signal" or a bad picture after 3.6 | It's on **HDMI1**, which now only offers 1328×748 at 15 Hz | Move it to **HDMI0**, next to the USB-C power. To give HDMI1 back to monitors, undo 3.6. |
-| No `cooling_fan/hwmon` folder | The fan isn't detected or switched on | Check the fan cable; check that `dtparam=cooling_fan=on` is before the first `dtoverlay=` line (4.2) |
-| `pwm1` isn't 255 after 4.3 | The fan lines are after a `dtoverlay=` line, or have a typo | Check the order with the `grep -n` in 4.2 |
+| No `cooling_fan/hwmon` folder (`no fan device` in 4.1) | The fan cable, or the fan device wasn't switched on at boot: it's `disabled` in the base device tree, and the fan lines of 4.2 don't switch it on | Check the fan cable on the FAN connector. If it's fine, add one more line at the end of `config.txt` with `echo 'dtparam=cooling_fan=on' \| sudo tee -a /boot/firmware/config.txt`, then reboot. |
+| `pwm1` isn't 255 after 4.3 | The fan lines have a typo, or they ended up in a board section such as `[cm4]` instead of after the last `[all]` | `tail -n 7 /boot/firmware/config.txt` must match the expected output in 4.2 |
 
 ---
 
