@@ -9,7 +9,7 @@ This guide takes a Raspberry Pi 5 from an empty microSD card to a running **Ubun
 
 It stops there. ROS 2 Lyrical and the KIT Phantom X Pincher dependencies come in later guides.
 
-> Checked on 2026-11-10 against the published image `ubuntu-26.04.1-preinstalled-desktop-arm64+raspi.img.xz` (its boot partition and package manifest), Ubuntu's source for the kernel it ships and Raspberry Pi Imager's OS list. Part 3 was checked on 2026-11-11 against the source of GNOME Remote Desktop 50.2, the version in the image. On 2026-11-26 its headless screen (3.6) was changed to the one in the published lab image `v2026.11.26` and in annex A.4 of the KIT remote-desktop guide ([`conexionEscritorioRemoto.md`](conexionEscritorioRemoto.md)): a 1328×748, 15 Hz virtual screen on HDMI1. The same day, SSH and the fan were aligned with that image too: it has no SSH server, so every remote step uses the remote desktop, and Part 4 adds the image's fan lines. **The full procedure hasn't been run on the Pi yet**: each part ends with the checks that prove it worked.
+> Checked on 2026-11-10 against the published image `ubuntu-26.04.1-preinstalled-desktop-arm64+raspi.img.xz` (its boot partition and package manifest), Ubuntu's source for the kernel it ships and Raspberry Pi Imager's OS list. Part 3 was checked on 2026-11-11 against the source of GNOME Remote Desktop 50.2, the version in the image. On 2026-11-26 its headless screen (3.6) was changed to the one in the published lab image `v2026.11.26-v2` and in annex A.4 of the KIT remote-desktop guide ([`conexionEscritorioRemoto.md`](conexionEscritorioRemoto.md)): a 1328×748, 15 Hz virtual screen on HDMI1. The same day, SSH and the fan were aligned with that image too: it has no SSH server, so every remote step uses the remote desktop, and Part 4 adds the image's fan lines. **The full procedure hasn't been run on the Pi yet**: each part ends with the checks that prove it worked.
 > Based on the Ubuntu Server guides ([ElJoho_Pi_Ros2_UbuntuServer26](https://github.com/ElJoho/ElJoho_Pi_Ros2_UbuntuServer26)) and the previous Desktop image ([UNPi5_Image_Ubuntu24_04](https://github.com/labsir-un/UNPi5_Image_Ubuntu24_04)).
 
 ---
@@ -348,7 +348,7 @@ grep CONFIG_DRM_LOAD_EDID_FIRMWARE /boot/config-$(uname -r)   # CONFIG_DRM_LOAD_
 | `video=HDMI-A-2:1328x748@15D` | **Yes** | A standard kernel display parameter: 1328×748 at 15 Hz, and `D` = force this output on even with nothing plugged in. |
 | The file | **Changed** | `/boot/firmware/current/cmdline.txt`, not `/boot/firmware/cmdline.txt` |
 
-Both settings are in the published lab image (`v2026.11.26`), where they give `HDMI-A-2: connected` with the single mode `1328x748`.
+Both settings are in the published lab image (`v2026.11.26-v2`), where they give `HDMI-A-2: connected` with the single mode `1328x748`.
 
 **Why the EDID file is needed:** without a monitor, Linux doesn't know which modes the port accepts, so it uses a standard list (1024×768, 848×480, 800×600, all at about 60 Hz). With the file, the port offers exactly 1328×748 at 15 Hz, and nothing else.
 
