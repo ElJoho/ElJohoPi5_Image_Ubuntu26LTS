@@ -11,7 +11,7 @@ Este repositorio contiene un backup del sistema de la Raspberry Pi 5 usado para 
 | Usuario / contraseña | `unpi` / `unpi` |
 | IP de la Raspberry Pi (cable Ethernet) | `192.168.10.2` |
 | Escritorio remoto | RDP (Escritorio remoto de GNOME): ver [Guides/conexionEscritorioRemoto.md](Guides/conexionEscritorioRemoto.md) |
-| Fecha de la imagen | 26 de noviembre de 2026 |
+| Versión de la imagen | 2, del 26 de noviembre de 2026 |
 
 El backup final corresponde a una imagen comprimida:
 
@@ -96,12 +96,12 @@ En CMD, dentro de la carpeta de las partes:
 dir
 ```
 
-Cada parte debe pesar exactamente **1.361.164.671 bytes** (aproximadamente **1,36 GB**).
+Cada parte debe pesar exactamente **1.217.997.032 bytes** (aproximadamente **1,22 GB**).
 
 En el Explorador de Windows aparece como:
 
 ```text
-1.329.263 KB
+1.189.451 KB
 ```
 
 El punto es separador de miles, no significa que el archivo pese solo 1 KB.
@@ -187,7 +187,7 @@ Verifica que el archivo final existe:
 dir
 ```
 
-El archivo reconstruido debe pesar exactamente **5.444.658.684 bytes** (aproximadamente **5,4 GB**; en el Explorador de Windows: `5.317.050 KB`).
+El archivo reconstruido debe pesar exactamente **4.871.988.128 bytes** (aproximadamente **4,9 GB**; en el Explorador de Windows: `4.757.801 KB`).
 
 ---
 
@@ -200,7 +200,7 @@ certutil -hashfile ElJohoUNPI_UbuntuDesktop2026LTS.img.xz SHA256
 La línea del medio de la respuesta debe ser exactamente:
 
 ```text
-9c44b273ce76c42c5fe09adbcbe9653ce57d627649673a876b728cf38198720b
+50791e4d71d1f0f4b105366741a74320ad963b40828241e4e5ac13992cdc4ccb
 ```
 
 Si es distinta, alguna parte está dañada o incompleta: revisa los tamaños (sección 3), vuelve a descargar la parte que no coincida y vuelve a unir.
@@ -222,7 +222,7 @@ sha256sum -c --ignore-missing SHA256SUMS.txt     # todas las líneas deben decir
 
 No descomprimas manualmente el archivo `.img.xz`.
 
-Aunque el archivo expandido ocupa alrededor de **19,3 GB**, no necesitas generar manualmente el `.img`.
+Aunque el archivo expandido ocupa alrededor de **16,7 GB**, no necesitas generar manualmente el `.img`.
 **Raspberry Pi Imager puede grabar directamente el archivo comprimido `.img.xz`.**
 
 El archivo que debes usar es:
@@ -307,13 +307,11 @@ Como esta es una imagen restaurada del sistema anterior, la configuración del s
 
 Para ver el escritorio de la Raspberry Pi desde un computador con Windows o Linux, conéctala por **cable Ethernet** y sigue la guía **[Conexión con Escritorio remoto (RDP)](Guides/conexionEscritorioRemoto.md)**: IP `192.168.10.2`, usuario `unpi`, contraseña `unpi`.
 
-**Una sola vez, para recibir las actualizaciones del repositorio del kit:** en una terminal de la Raspberry Pi, ejecuta:
+**Repositorio del kit:** para saber qué repositorio clonar y cómo hacerlo, abre el archivo `~/ros2/readme.txt` de la Raspberry Pi, por ejemplo en una terminal:
 
 ```bash
-git -C ~/ros2/KIT_Phantom_X_Pincher_ROS2 remote set-url origin https://github.com/ElJoho/ElJoho_KIT_Phantom_X_Pincher_ROS2.git
+cat ~/ros2/readme.txt
 ```
-
-La imagen `v2026.11.26` trae el repositorio del kit apuntando a una dirección anterior, que ya no recibe cambios. Ver la sección 5.2 de la [guía de escritorio remoto](Guides/conexionEscritorioRemoto.md#52-actualizar-el-repositorio-y-compilar).
 
 Si la Raspberry Pi no aparece inmediatamente:
 
@@ -336,7 +334,7 @@ En algunos casos puede ser necesario reiniciar la Raspberry Pi 5 usando el botó
 
 La descarga se interrumpió. Bórrala y vuelve a descargarla desde la sección Releases (sección 2).
 
-Cada parte debe pesar exactamente **1.361.164.671 bytes**.
+Cada parte debe pesar exactamente **1.217.997.032 bytes**.
 
 ---
 
@@ -359,7 +357,7 @@ copy /b /y ElJohoUNPI_UbuntuDesktop2026LTS.img.xz.part-001+ElJohoUNPI_UbuntuDesk
 Revisa lo siguiente:
 
 * Debes tener exactamente **4 partes**.
-* Cada parte debe pesar exactamente **1.361.164.671 bytes**.
+* Cada parte debe pesar exactamente **1.217.997.032 bytes**.
 * Debes unirlas en orden desde `part-001` hasta `part-004`.
 * No debes intentar abrir o descomprimir una parte individual.
 * El SHA-256 del archivo unido debe coincidir con el de la sección 4.4.
@@ -408,7 +406,7 @@ Por eso es importante verificar que seleccionaste la microSD o SSD correcta ante
 ```text
 1. Abrir la sección Releases de este repositorio.
 2. Descargar las 4 partes en una misma carpeta.
-3. Verificar que cada parte pese 1.361.164.671 bytes.
+3. Verificar que cada parte pese 1.217.997.032 bytes.
 4. Abrir CMD como administrador.
 5. Entrar a la carpeta de las partes.
 6. Unir las partes con copy /b.
